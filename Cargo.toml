@@ -1,0 +1,10 @@
+[package]
+name = "url_titles"
+version = "0.1.0"
+authors = ["Jacob Shaffer <jpshaffer5481@gmail.com>"]
+
+[dependencies]
+reqwest = "0.8.5"
+env_logger = "0.5"
+error-chain = "0.10"
+select = "0.4.2"
