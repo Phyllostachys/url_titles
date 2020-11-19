@@ -6,5 +6,5 @@ authors = ["Jacob Shaffer <jpshaffer5481@gmail.com>"]
 [dependencies]
 reqwest = "0.8.5"
 env_logger = "0.5"
-error-chain = "0.10"
+error-chain = "0.12"
 select = "0.4.2"

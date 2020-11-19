@@ -34,7 +34,7 @@ fn run() -> Result<()> {
 
     let file = std::fs::File::open(path)?;
     let buf = std::io::BufReader::new(file);
-    let mut urls : Vec<UrlTitle> = Vec::new();
+    let mut urls: Vec<UrlTitle> = Vec::new();
     for line in buf.lines() {
         match line {
             Ok(l) => urls.push(UrlTitle {
@@ -44,7 +44,7 @@ fn run() -> Result<()> {
             Err(e) => println!("Error on getting line... {}", e),
         }
     }
-    let mut url_titles: Arc<Vec<UrlTitle>> = Arc::new(urls);
+    let url_titles: Arc<Vec<UrlTitle>> = Arc::new(urls);
 
     let mut threads = Vec::new();
     for i in 0..url_titles.len() {
@@ -52,23 +52,23 @@ fn run() -> Result<()> {
         threads.push(std::thread::spawn(move || {
             let mut res;
             //unsafe {
-                res = reqwest::get(ut[i].url.as_str()).unwrap();
+            res = reqwest::get(ut[i].url.as_str()).unwrap();
             //}
             let content = res.text().unwrap();
             let document = Document::from(content.as_str());
             let node = document
                 .find(Name("title"))
-                .nth(0)
+                .next()
                 .expect("Node \"title\" not found...");
             unsafe {
-                (*(ut.as_ptr() as *mut UrlTitle).offset(i as isize)).title = node.text();
+                (*(ut.as_ptr() as *mut UrlTitle).add(i)).title = node.text();
             }
         }));
         std::thread::sleep(std::time::Duration::from_millis(750));
     }
 
     for thread in threads {
-        thread.join();
+        thread.join().unwrap();
     }
 
     for url_title in url_titles.iter() {
