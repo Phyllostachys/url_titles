@@ -1,14 +1,8 @@
 use std::io::prelude::*;
 use std::sync::Arc;
 
-extern crate env_logger;
-#[macro_use]
-extern crate error_chain;
-extern crate reqwest;
-
-extern crate select;
-use select::document::Document;
-use select::predicate::Name;
+use error_chain::{error_chain, quick_main};
+use select::{document::Document, predicate::Name};
 
 error_chain! {
     foreign_links {
@@ -50,18 +44,17 @@ fn run() -> Result<()> {
     for i in 0..url_titles.len() {
         let ut = Arc::clone(&url_titles);
         threads.push(std::thread::spawn(move || {
-            let mut res;
-            //unsafe {
-            res = reqwest::get(ut[i].url.as_str()).unwrap();
-            //}
+            let res = reqwest::blocking::get(ut[i].url.as_str()).unwrap();
             let content = res.text().unwrap();
             let document = Document::from(content.as_str());
-            let node = document
-                .find(Name("title"))
-                .next()
-                .expect("Node \"title\" not found...");
-            unsafe {
-                (*(ut.as_ptr() as *mut UrlTitle).add(i)).title = node.text();
+            if let Some(node) = document.find(Name("title")).next() {
+                unsafe {
+                    (*(ut.as_ptr() as *mut UrlTitle).add(i)).title = node.text();
+                }
+            } else {
+                unsafe {
+                    (*(ut.as_ptr() as *mut UrlTitle).add(i)).title = String::from("");
+                }
             }
         }));
         std::thread::sleep(std::time::Duration::from_millis(750));

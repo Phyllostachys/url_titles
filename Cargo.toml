@@ -2,9 +2,10 @@
 name = "url_titles"
 version = "0.1.0"
 authors = ["Jacob Shaffer <jpshaffer5481@gmail.com>"]
+edition = "2018"
 
 [dependencies]
-reqwest = "0.8.5"
-env_logger = "0.5"
+reqwest = { version = "0.11", default-features = false, features = ["native-tls", "blocking"] }
+env_logger = "0.8"
 error-chain = "0.12"
-select = "0.4.2"
+select = "0.5"
